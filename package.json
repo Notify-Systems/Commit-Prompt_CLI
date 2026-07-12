@@ -1,0 +1,26 @@
+{
+  "name": "commit-prompt-cli",
+  "version": "1.0.0",
+  "description": "CLI que gera um prompt com o git diff --staged para criação manual de mensagens de commit no padrão Conventional Commits.",
+  "type": "module",
+  "main": "src/index.js",
+  "bin": {
+    "commit-prompt": "./src/index.js"
+  },
+  "scripts": {
+    "start": "node src/index.js"
+  },
+  "keywords": [
+    "git",
+    "cli",
+    "conventional-commits",
+    "commit"
+  ],
+  "license": "MIT",
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "clipboardy": "^4.0.0"
+  }
+}
