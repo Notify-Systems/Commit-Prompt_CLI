@@ -111,6 +111,11 @@ Saída
 Retorne somente a mensagem final do commit.
 `;
 
+// Limite aproximado (em caracteres) a partir do qual avisamos o usuário que
+// o diff pode ultrapassar o contexto de algumas IAs. ~24000 caracteres
+// equivale a uma estimativa grosseira de ~6000 tokens (1 token ≈ 4 chars).
+const LARGE_DIFF_CHAR_THRESHOLD = 24000;
+
 /**
  * Constrói o prompt final, concatenando o cabeçalho fixo com o diff staged.
  */
@@ -118,4 +123,4 @@ function buildCommitPrompt(diff) {
   return `${PROMPT_HEADER}${diff}`;
 }
 
-export { buildCommitPrompt };
+export { buildCommitPrompt, LARGE_DIFF_CHAR_THRESHOLD };

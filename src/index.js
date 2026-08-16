@@ -1,19 +1,25 @@
 #!/usr/bin/env node
 
-import { isGitMissing, isGitRepository, getStagedDiff, GitError } from './git.js';
-import { buildCommitPrompt } from './prompt.js';
-import { copyToClipboard } from './clipboard.js';
-import { COLORS } from './utils.js';
+import {
+  isGitMissing,
+  isGitRepository,
+  getStagedDiff,
+  GitError,
+} from "./git.js";
+import { buildCommitPrompt, LARGE_DIFF_CHAR_THRESHOLD } from "./prompt.js";
+import { copyToClipboard } from "./clipboard.js";
+import { COLORS } from "./utils.js";
 import {
   showNoGitRepositoryError,
   showGitNotInstalledError,
   showNoStagedChangesMessage,
   showDiffFoundMessage,
+  showLargeDiffWarning,
   showPromptCopiedMessage,
   showClipboardError,
   showGitCommandError,
   showUnexpectedError,
-} from './messages.js';
+} from "./messages.js";
 
 /**
  * Ponto de entrada da aplicação.
@@ -55,6 +61,10 @@ async function main() {
 
   showDiffFoundMessage();
 
+  if (diff.length > LARGE_DIFF_CHAR_THRESHOLD) {
+    showLargeDiffWarning(diff.length);
+  }
+
   const prompt = buildCommitPrompt(diff);
 
   try {
@@ -65,9 +75,9 @@ async function main() {
     // clipboard disponível. Em vez de simplesmente falhar, fazemos fallback:
     // avisamos o problema e imprimimos o prompt para cópia manual.
     showClipboardError(error);
-    console.log('');
-    console.log(COLORS.yellow('⚠ Copie o prompt abaixo manualmente:'));
-    console.log('');
+    console.log("");
+    console.log(COLORS.yellow("⚠ Copie o prompt abaixo manualmente:"));
+    console.log("");
     console.log(prompt);
     process.exitCode = 1;
   }

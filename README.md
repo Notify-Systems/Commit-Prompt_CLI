@@ -1,7 +1,6 @@
 # commit-prompt-cli
 
-CLI simples que gera um prompt pronto (em inglês, seguindo Conventional Commits)
-com o conteúdo do `git diff --staged` e o copia para a área de transferência.
+CLI simples que gera um prompt pronto com o conteúdo do `git diff --staged` e o copia para a área de transferência.
 Você cola o prompt em qualquer IA de sua preferência e usa a resposta como
 mensagem de commit. A ferramenta não faz nenhuma chamada de rede nem usa
 API de IA — tudo roda localmente.

@@ -17,6 +17,18 @@
     "commit"
   ],
   "license": "MIT",
+  "author": "JPTirso <jptirso2@gmail.com>",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Notify-Systems/Commit-Prompt_CLI"
+  },
+  "bugs": {
+    "url": "https://github.com/Notify-Systems/Commit-Prompt_CLI/issues"
+  },
+  "homepage": "https://github.com/Notify-Systems/Commit-Prompt_CLI#readme",
+  "files": [
+    "src"
+  ],
   "engines": {
     "node": ">=18"
   },
