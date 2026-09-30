@@ -111,6 +111,7 @@ Saída
 Retorne somente a mensagem final do commit.
 `;
 
+
 // Limite aproximado (em caracteres) a partir do qual avisamos o usuário que
 // o diff pode ultrapassar o contexto de algumas IAs. ~24000 caracteres
 // equivale a uma estimativa grosseira de ~6000 tokens (1 token ≈ 4 chars).
