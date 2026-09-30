@@ -84,10 +84,84 @@ async function getStagedDiff() {
   }
 }
 
+/**
+ * Executa um comando Git e retorna o stdout como string.
+ * Centraliza o tratamento de erro das funções abaixo: qualquer falha vira um
+ * GitError com a causa original preservada (o stderr real do Git).
+ */
+async function runGit(args, failureMessage) {
+  try {
+    const { stdout } = await execFileAsync("git", args, {
+      encoding: "utf-8",
+      maxBuffer: MAX_DIFF_BUFFER,
+    });
+    return stdout;
+  } catch (error) {
+    throw new GitError(failureMessage, error);
+  }
+}
+
+/**
+ * Lista os arquivos staged que foram adicionados, copiados, modificados ou
+ * renomeados (ACMR), ignorando os deletados, que não têm código para comentar.
+ * O --relative devolve caminhos relativos ao diretório atual, coerentes com o
+ * getStagedDiff (que também se limita ao diretório atual). O -z separa os
+ * nomes por NUL, evitando que nomes com espaços ou acentos venham entre aspas.
+ */
+async function getStagedFiles() {
+  const stdout = await runGit(
+    [
+      "diff",
+      "--staged",
+      "--relative",
+      "--name-only",
+      "--diff-filter=ACMR",
+      "-z",
+      "--",
+      ".",
+    ],
+    "Falha ao listar os arquivos staged.",
+  );
+  return stdout.split("\0").filter(Boolean);
+}
+
+/**
+ * Lê o conteúdo do arquivo na área de staging (e não no disco), para que ele
+ * corresponda exatamente ao diff staged, mesmo que haja edições não staged.
+ * O prefixo "./" faz o caminho ser relativo ao diretório atual.
+ */
+async function getStagedFileContent(filePath) {
+  return runGit(
+    ["show", `:./${filePath}`],
+    `Falha ao ler "${filePath}" da área de staging.`,
+  );
+}
+
+/**
+ * Obtém o diff staged de um único arquivo. O ":(literal)" impede que
+ * caracteres como * ou ? no nome sejam tratados como curingas pelo Git.
+ */
+async function getStagedFileDiff(filePath) {
+  return runGit(
+    [
+      "diff",
+      "--staged",
+      "--relative",
+      "--unified=3",
+      "--",
+      `:(literal)${filePath}`,
+    ],
+    `Falha ao obter o diff de "${filePath}".`,
+  );
+}
+
 export {
   isGitMissing,
   isGitRepository,
   getStagedDiff,
+  getStagedFiles,
+  getStagedFileContent,
+  getStagedFileDiff,
   GitError,
   DEFAULT_EXCLUDED_PATHSPECS,
 };

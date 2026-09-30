@@ -70,4 +70,44 @@ function buildCommentPrompt(files) {
   return `${COMMENT_PROMPT_HEADER}\n${sections}\n`;
 }
 
-export { buildCommentPrompt, COMMENT_PROMPT_HEADER };
+// Limite aproximado (em caracteres de conteúdo) por prompt. Como a IA devolve
+// os arquivos completos, o tamanho da resposta acompanha o do conteúdo enviado;
+// 24000 caracteres ≈ 6000 tokens (1 token ≈ 4 chars), o mesmo critério usado
+// no aviso de diff grande.
+const COMMENT_BATCH_CHAR_THRESHOLD = 24000;
+
+/**
+ * Agrupa os arquivos em lotes, na ordem original, sem ultrapassar o limite de
+ * caracteres por lote. Um arquivo maior que o limite ocupa um lote sozinho.
+ *
+ * @param {Array<{path: string, content: string, diff: string}>} files
+ * @param {number} [threshold] Limite de caracteres de conteúdo por lote.
+ * @returns {Array<Array<{path: string, content: string, diff: string}>>}
+ */
+function splitIntoBatches(files, threshold = COMMENT_BATCH_CHAR_THRESHOLD) {
+  const batches = [];
+  let current = [];
+  let currentSize = 0;
+
+  for (const file of files) {
+    const wouldOverflow =
+      current.length > 0 && currentSize + file.content.length > threshold;
+    if (wouldOverflow) {
+      batches.push(current);
+      current = [];
+      currentSize = 0;
+    }
+    current.push(file);
+    currentSize += file.content.length;
+  }
+
+  if (current.length > 0) batches.push(current);
+  return batches;
+}
+
+export {
+  buildCommentPrompt,
+  splitIntoBatches,
+  COMMENT_PROMPT_HEADER,
+  COMMENT_BATCH_CHAR_THRESHOLD,
+};

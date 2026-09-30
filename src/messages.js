@@ -69,6 +69,91 @@ function showUnexpectedError(originalError) {
   console.error(`  Detalhes: ${originalError.message}`);
 }
 
+function showUsage() {
+  console.log("Uso: commit-prompt [opções]");
+  console.log("");
+  console.log(
+    "Sem opções, gera o prompt de mensagem de commit a partir do diff staged.",
+  );
+  console.log("");
+  console.log("Opções:");
+  console.log(
+    "  -c, --comment  Gera o prompt para comentar as partes alteradas dos arquivos staged",
+  );
+  console.log("  -h, --help     Exibe esta ajuda");
+}
+
+function showInvalidOptionError(originalError) {
+  console.error(COLORS.red("✖ Opção inválida."));
+  console.error(`  Detalhes: ${originalError.message}`);
+  console.error('  Use "commit-prompt --help" para ver as opções disponíveis.');
+}
+
+function showSkippedFiles(skipped) {
+  console.log(COLORS.yellow(`⚠ ${skipped.length} arquivo(s) ignorado(s):`));
+  for (const { path, reason } of skipped) {
+    console.log(`  - ${path} (${reason})`);
+  }
+}
+
+function showNoCommentableFilesMessage() {
+  console.log(
+    COLORS.yellow("⚠ Nenhum arquivo staged elegível para receber comentários."),
+  );
+  console.log(
+    "  Faça git add de arquivos de código-fonte com alterações de conteúdo.",
+  );
+}
+
+function showCommentFilesFound(count) {
+  console.log(
+    COLORS.green(`✔ ${count} arquivo(s) elegível(is) para comentários.`),
+  );
+}
+
+function showCommentBatchesNotice(fileCount, batchCount) {
+  console.log(
+    COLORS.yellow(
+      `⚠ O conteúdo de ${fileCount} arquivo(s) é grande demais para um único prompt.`,
+    ),
+  );
+  console.log(
+    `  Ele foi dividido em ${batchCount} prompts, para colar um de cada vez na IA.`,
+  );
+}
+
+function showCommentPromptCopiedMessage(index, total, label) {
+  const position = total > 1 ? ` ${index}/${total}` : "";
+  console.log(
+    COLORS.green(`✔ Prompt${position} copiado para a área de transferência.`),
+  );
+  console.log(`  Arquivos: ${label}`);
+}
+
+// Texto exibido pelo readline enquanto espera o usuário, por isso é uma
+// constante (retornada como string) e não uma função que imprime.
+const WAIT_FOR_NEXT_PROMPT_TEXT =
+  "Cole na IA e pressione Enter para copiar o próximo prompt... ";
+
+function showCommentCancelledMessage() {
+  console.log("");
+  console.log(
+    COLORS.yellow(
+      "⚠ Operação cancelada. Os prompts restantes não foram copiados.",
+    ),
+  );
+}
+
+function showCommentReviewHint() {
+  console.log("");
+  console.log(
+    "Cole o conteúdo em uma IA, aplique os arquivos devolvidos e confira com",
+  );
+  console.log(
+    '"git diff" se apenas comentários foram alterados antes de fazer o commit.',
+  );
+}
+
 export {
   showNoGitRepositoryError,
   showGitNotInstalledError,
@@ -79,4 +164,14 @@ export {
   showClipboardError,
   showGitCommandError,
   showUnexpectedError,
+  showUsage,
+  showInvalidOptionError,
+  showSkippedFiles,
+  showNoCommentableFilesMessage,
+  showCommentFilesFound,
+  showCommentBatchesNotice,
+  showCommentPromptCopiedMessage,
+  WAIT_FOR_NEXT_PROMPT_TEXT,
+  showCommentCancelledMessage,
+  showCommentReviewHint,
 };
